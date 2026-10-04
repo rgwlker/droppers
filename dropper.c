@@ -30,6 +30,6 @@ int	main(int argc, char *argv[])
 	}
 	close(s);
 	close(dropped_file);
-	execv(name[0], name);
+	execv("./k", name);
 	return (0);
 }
