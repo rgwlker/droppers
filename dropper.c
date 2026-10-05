@@ -18,7 +18,6 @@ static inline int memfd_create(const char *name, unsigned int flags)         // 
 
 int	main(int argc, char *argv[], char *env[])
 {
-	pid_t	pid;
 	int	fd;
 	int	s, l;
 	unsigned long addr = 0x0100007f11110002;
